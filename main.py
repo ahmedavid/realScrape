@@ -24,38 +24,39 @@ def parseParams(parameters):
     return params
 
 def scrapeUrl(base_url,item_id):
-    # print(base_url,item_id)
-    item = {
-        "id": item_id
-    }
-    url = base_url + str(item_id)
-    try:
-      response = requests.get(url)
-      soup = BeautifulSoup(response.text, 'html.parser')
-      item_page = soup.select_one(".price-val")
-      if(item_page is None):
-        cont_error += 1
-        if(cont_error > 10):
-          print("Too many back to back errors, exiting ...")
-          sys.exit(2)
-        raise ValueError("Item deleted: "+str(item_id))
-      else:
-        cont_error = 0
+  global cont_error
+  # print(base_url,item_id)
+  item = {
+      "id": item_id
+  }
+  url = base_url + str(item_id)
+  try:
+    response = requests.get(url)
+    soup = BeautifulSoup(response.text, 'html.parser')
+    item_page = soup.select_one(".price-val")
+    if(item_page is None):
+      cont_error += 1
+      if(cont_error > 10):
+        print("Too many back to back errors, exiting ...")
+        sys.exit(2)
+      raise ValueError("Item deleted: "+str(item_id))
+    else:
+      cont_error = 0
 
-      coords = soup.select_one("#item_map")
-      item["lng"] = coords["data-lng"]
-      item["lat"] = coords["data-lat"]
-      item["price"] = parsePrice(item_page.getText())
-      item["isRent"] = True if soup.select_one(".price_header > .price > p > .price-per") else False
-      item["title"] = soup.select_one(".services-container > h1").getText()
-      item["address"] = soup.select_one(".map_address").text[7:]
-      item["parameters"] = parseParams(soup.select_one(".parameters"))
-      item["description"] = soup.select_one("article").getText()
-      item["date"] = soup.select_one(".item_info").select_one(":last-child").get_text().split(":")[1].strip()
-      
-      return item
-    except BaseException as error:
-      print('An exception occurred: {}'.format(error))
+    coords = soup.select_one("#item_map")
+    item["lng"] = coords["data-lng"]
+    item["lat"] = coords["data-lat"]
+    item["price"] = parsePrice(item_page.getText())
+    item["isRent"] = True if soup.select_one(".price_header > .price > p > .price-per") else False
+    item["title"] = soup.select_one(".services-container > h1").getText()
+    item["address"] = soup.select_one(".map_address").text[7:]
+    item["parameters"] = parseParams(soup.select_one(".parameters"))
+    item["description"] = soup.select_one("article").getText()
+    item["date"] = soup.select_one(".item_info").select_one(":last-child").get_text().split(":")[1].strip()
+    
+    return item
+  except BaseException as error:
+    print('An exception occurred: {}'.format(error))
 
 def process_batch(fn,start,batch_size):
   results = []
