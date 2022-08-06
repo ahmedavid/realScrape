@@ -3,6 +3,7 @@ import sys
 import time
 import json
 import requests
+from datetime import datetime
 from bs4 import BeautifulSoup
 import re
 import random
@@ -10,6 +11,28 @@ from concurrent.futures import ThreadPoolExecutor,as_completed
 
 base_url = "https://bina.az/items/"
 cont_error = 0
+
+month_map = {
+    1: "Yanvar",
+    2: "Fevral",
+    3: "Mart",
+    4: "Aprel",
+    5: "May",
+    6: "İyun",
+    7: "İyul",
+    8: "Avqust",
+    9: "Sentyabr",
+    10: "Oktyabr",
+    11: "Noyabr",
+    12: "Dekabr",
+}
+today_arr = [
+    str(f"{datetime.now().day:02}"),
+    str(month_map[datetime.now().month]),
+    str(datetime.now().year)
+]
+
+today_str = " ".join(today_arr)
 
 def parsePrice(priceStr):
     priceArr = priceStr.split(" ")
@@ -52,8 +75,8 @@ def scrapeUrl(base_url,item_id):
     item["address"] = soup.select_one(".map_address").text[7:]
     item["parameters"] = parseParams(soup.select_one(".parameters"))
     item["description"] = soup.select_one("article").getText()
-    item["date"] = soup.select_one(".item_info").select_one(":last-child").get_text().split(":")[1].strip()
-    
+    raw_date_arr = soup.select_one(".item_info").select_one(":last-child").get_text().split(":")[1].strip().split(" ")
+    item["date"] = " ".join(raw_date_arr) if len(raw_date_arr) == 3 else toda
     return item
   except BaseException as error:
     print('An exception occurred: {}'.format(error))
