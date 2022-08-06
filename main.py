@@ -76,7 +76,7 @@ def scrapeUrl(base_url,item_id):
     item["parameters"] = parseParams(soup.select_one(".parameters"))
     item["description"] = soup.select_one("article").getText()
     raw_date_arr = soup.select_one(".item_info").select_one(":last-child").get_text().split(":")[1].strip().split(" ")
-    item["date"] = " ".join(raw_date_arr) if len(raw_date_arr) == 3 else toda
+    item["date"] = " ".join(raw_date_arr) if len(raw_date_arr) == 3 else today_str
     return item
   except BaseException as error:
     print('An exception occurred: {}'.format(error))
