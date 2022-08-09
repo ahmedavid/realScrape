@@ -1,0 +1,6 @@
+data
+data/*.json
+venv
+*.json
+.vscode
+.ipynb_checkpoints
